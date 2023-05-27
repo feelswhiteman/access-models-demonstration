@@ -24,12 +24,12 @@ function Navbar() {
             <button onClick={handleLogout}>
                 <Link to="/mandatory">Вийти</Link>
             </button>
-            <span>{currentUser}</span>
         </li> : <li>
             <button>
                 <Link to="/mandatory/login">Увійти</Link>
             </button>
         </li>}
+        <li>{currentUser}</li>
         <hr />
     </ul>;
 }
