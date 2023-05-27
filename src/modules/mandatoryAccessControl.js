@@ -1,87 +1,52 @@
-export class User {
-    constructor(username, password, isAdmin) {
+export class MUser {
+    constructor(username, password) {
         this.username = username;
         this.password = password;
-        this.isAdmin = isAdmin;
+    }
+
+    setAccessLevel = function (accessLevel) {
+        this.accessLevel = accessLevel;
     }
 }
 
-export class File {
+export class MFile {
     constructor(path, content) {
         this.path = path;
         this.content = content;
     }
 
-    setAccessMatrix = function (accessMatrix) {
-        this.accessMatrix = accessMatrix;
+    setSecurityLevel = function (securityLevel) {
+        this.securityLevel = securityLevel;
     }
 
-    read = function (username) {
-        const user = this.accessMatrix.get(username);
-        if (user.permissions.includes('r')) {
+    read = function (user) {
+        if (user.accessLevel >= this.securityLevel) {
             console.log(this.content);
-            console.log(`Файл успішно прочитано користувачем ${username}`);
+            console.log(`Файл успішно прочитано користувачем ${user.username}`);
             return this.content;
         } else {
-            console.warn(`У користувача ${username} немає доступу на запис для файлу ${this.path}`);
+            console.warn(`У користувача ${user.username} немає доступу на читання файлу ${this.path}`);
         }
     }
 
-    write = function (username, text) {
-        const user = this.accessMatrix.get(username);
-        if (user.permissions.includes('w')) {
+    write = function (user, text) {
+        if (user.accessLevel >= this.securityLevel) {
             this.content += text;
-            console.log(`Файл успішно змінено користувачем ${username}`);
+            console.log(`Файл успішно змінено користувачем ${user.username}`);
         } else {
-            console.warn(`У користувача ${username} немає доступу на запис для файлу ${this.path}`);
+            console.warn(`У користувача ${user.username} немає доступу на запис для файлу ${this.path}`);
         }
-    }
-
-    grant = function (username, toUsername, permissions) {
-        const userPermissions = this.accessMatrix.get(username);
-
-        if (!userPermissions.includes('g')) {
-            console.log('Немає прав на надачу доступу до файлу ' + this.path);
-            return;
-        }
-
-        const toUser = this.accessMatrix.get(toUsername);
-
-        if (!toUser) {
-            alert(`Користувача ${toUsername} не знайдено`);
-            return;
-        }
-
-        if (permissions.length !== 3) {
-            alert('Неправильний формат строки!')
-            return
-        }
-
-        this.accessMatrix.set(toUsername, permissions);
     }
 }
 
-function getRandomPermissions() {
-    let permissions = 'rwg';
-    for (let i = 0; i < 3; i++) {
-        if (Math.random() > 0.5) {
-            permissions = permissions.replace(permissions.charAt(i), '-');
-        }
+export function defineUserAccessLevelRandomly(users) {
+    for(const user of users) {
+        user.setAccessLevel(Math.floor(Math.random() * 3));
     }
-    return permissions;
 }
 
-export function defineAccessMatrix(file, users) {
-    const accessMatrix = new Map();
-    for (const user of users) {
-        let permissions;
-        if (user.isAdmin) {
-            permissions = 'rwg';
-        }
-        else {
-            permissions = getRandomPermissions();
-        }
-        accessMatrix.set(user.username, permissions);
+export function defineFileSecurityLevelRandomly(files) {
+    for(const file of files) {
+        file.setSecurityLevel(Math.floor(Math.random() * 3));
     }
-    file.setAccessMatrix(accessMatrix);
 }

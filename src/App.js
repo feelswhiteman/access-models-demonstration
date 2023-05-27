@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './styles/App.css'
-import { User, File, defineAccessMatrix } from './modules/discretionaryAccessControl'
+import { DUser, DFile, defineAccessMatrixRandomly } from './modules/discretionaryAccessControl'
+import { MUser, MFile, defineFileSecurityLevelRandomly, defineUserAccessLevelRandomly } from './modules/mandatoryAccessControl';
 
 import { AuthContext } from './context';
 import Login from './components/Login';
@@ -12,30 +13,47 @@ import MandatoryModel from './components/mandatory/MandatoryModel';
 import MandatoryUserPage from './components/mandatory/MandatoryUserPage';
 
 const users1 = [
-    new User('user1', 'pass1', true),
-    new User('user2', 'pass2', false),
-    new User('user3', 'pass3', false),
-    new User('user4', 'pass4', false),
-    new User('user5', 'pass5', false),
-    new User('user6', 'pass6', false),
-    new User('user7', 'pass7', false),
-    new User('user8', 'pass8', false),
-    new User('user9', 'pass9', false),
-    new User('user10', 'pass10', false),
+    new DUser('user1', 'pass1', true),
+    new DUser('user2', 'pass2', false),
+    new DUser('user3', 'pass3', false),
+    new DUser('user4', 'pass4', false),
+    new DUser('user5', 'pass5', false),
+    new DUser('user6', 'pass6', false),
+    new DUser('user7', 'pass7', false),
+    new DUser('user8', 'pass8', false),
+    new DUser('user9', 'pass9', false),
+    new DUser('user10', 'pass10', false),
 ];
 
 const files1 = [
-    new File('file1.txt', 'content of file1'),
-    new File('file2.txt', 'content of file2'),
-    new File('file3.txt', 'content of file3'),
-    new File('file4.txt', 'content of file4'),
-    new File('file5.txt', 'content of file5'),
+    new DFile('file1.txt', 'content of file1'),
+    new DFile('file2.txt', 'content of file2'),
+    new DFile('file3.txt', 'content of file3'),
+    new DFile('file4.txt', 'content of file4'),
+    new DFile('file5.txt', 'content of file5'),
 ];
 
 for (const file of files1) {
-    defineAccessMatrix(file, users1);
+    defineAccessMatrixRandomly(file, users1);
 }
 
+const users2 = [
+    new MUser('user21', 'pass21'),
+    new MUser('user22', 'pass22'),
+    new MUser('user23', 'pass23'),
+    new MUser('user24', 'pass24'),
+];
+
+const files2 = [
+    new MFile('file21.txt', 'content of file21'),
+    new MFile('file22.txt', 'content of file22'),
+    new MFile('file23.txt', 'content of file23'),
+    new MFile('file24.txt', 'content of file24'),
+    new MFile('file25.txt', 'content of file25'),
+];
+
+defineUserAccessLevelRandomly(users2);
+defineFileSecurityLevelRandomly(files2);
 
 
 const App = () => {
@@ -58,9 +76,10 @@ const App = () => {
                         }
 
                         <Route path="/mandatory" element={<MandatoryModel />} />
-                        <Route path="/mandatory/login" element={<Login users={users1} />}></Route>
+                        <Route path="/mandatory/login" element={<Login users={users2} />}></Route>
                         {isAuthenticated &&
-                            <Route path="/mandatory/users/:username" element={<MandatoryUserPage files={files1} />} />
+                            <Route path="/mandatory/users/:username" element={
+                                <MandatoryUserPage userAccessLevel={ users2.find(u => u.username === currentUser).accessLevel } files={files2} />} />
                         }
                         <Route path='/*' element={<Navigate to="/" />}></Route>
                     </Routes>

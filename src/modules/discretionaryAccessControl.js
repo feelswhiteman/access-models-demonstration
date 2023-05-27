@@ -1,4 +1,4 @@
-export class User {
+export class DUser {
     constructor(username, password, isAdmin) {
         this.username = username;
         this.password = password;
@@ -6,7 +6,7 @@ export class User {
     }
 }
 
-export class File {
+export class DFile {
     constructor(path, content) {
         this.path = path;
         this.content = content;
@@ -23,7 +23,7 @@ export class File {
             console.log(`Файл успішно прочитано користувачем ${username}`);
             return this.content;
         } else {
-            console.warn(`У користувача ${username} немає доступу на запис для файлу ${this.path}`);
+            console.warn(`У користувача ${username} немає доступу на читання файлу ${this.path}`);
         }
     }
 
@@ -71,16 +71,11 @@ function getRandomPermissions() {
     return permissions;
 }
 
-export function defineAccessMatrix(file, users) {
+export function defineAccessMatrixRandomly(file, users) {
     const accessMatrix = new Map();
     for (const user of users) {
         let permissions;
-        if (user.isAdmin) {
-            permissions = 'rwg';
-        }
-        else {
-            permissions = getRandomPermissions();
-        }
+        user.isAdmin ? permissions = 'rwg' : permissions = getRandomPermissions();
         accessMatrix.set(user.username, permissions);
     }
     file.setAccessMatrix(accessMatrix);

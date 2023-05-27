@@ -4,7 +4,7 @@ import Navbar from './Navbar';
 import { useContext } from 'react';
 import { AuthContext } from '../../context';
 
-const MandatoryUserPage = ({ files }) => {
+const MandatoryUserPage = ({ userAccessLevel, files }) => {
   const { username } = useParams();
 
   const user = useContext(AuthContext).currentUser;
@@ -13,21 +13,22 @@ const MandatoryUserPage = ({ files }) => {
     return <div>Користувача не знайдено.</div>;
   }
 
-  const userPermissons = [];
-  for (const file of files) {
-    userPermissons.push(file.accessMatrix.get(username));
+  function levelAsString(level) {
+    if(level === 0) return 'Відкриті дані';
+    if(level === 1) return "Таємно";
+    if(level === 2) return "Цілком таємно";
   }
 
-  function readFile(file, userPermissons) {
-    if (!userPermissons.includes('r')) {
+  function readFile(file) {
+    if (userAccessLevel < file.securityLevel) {
       alert(`Ви не маєте дозвoлу на читання файлу ${file.path}.`)
       return;
     }
     alert(`Контент файлу ${file.path}:\n${file.content}`)
   }
 
-  function writeFile(file, userPermissons) {
-    if (!userPermissons.includes('w')) {
+  function writeFile(file) {
+    if (userAccessLevel < file.securityLevel) {
       alert(`Ви не маєте дозвoлу на запис файлу ${file.path}`)
       return;
     }
@@ -35,21 +36,11 @@ const MandatoryUserPage = ({ files }) => {
     file.content += text;
   }
 
-  function grantFile(file, userPermissons) {
-    if (!userPermissons.includes('g')) {
-      alert(`Ви не маєте дозвoлу на передачу доступу до файлу ${file.path}`)
-      return;
-    }
-    const userTo = prompt("Введіть ім'я користувача, якому хочете надати права: ");
-    const permissions = prompt('Введіть права, які хочете надати (формат rwg): ');
-
-    file.grant(username, userTo, permissions);
-  }
-
   return (
     <div>
       <Navbar />
       <h2>Сторінка користувача {username}</h2>
+      <h2>Ваш рівень доступу: {levelAsString(userAccessLevel)}</h2>
       <h3>Список файлів:</h3>
       <table>
         <thead>
@@ -63,11 +54,10 @@ const MandatoryUserPage = ({ files }) => {
           {files.map((file, index) => (
             <tr key={index}>
               <td>{file.path}</td>
-              <td>{userPermissons[index]}</td>
+              <td>{levelAsString(file.securityLevel)}</td>
               <td>
-                <button onClick={() => readFile(file, userPermissons[index])}>read</button>
-                <button onClick={() => writeFile(file, userPermissons[index])}>write</button>
-                <button onClick={() => grantFile(file, userPermissons[index])}>grant</button>
+                <button onClick={() => readFile(file)}>read</button>
+                <button onClick={() => writeFile(file)}>write</button>
               </td>
             </tr>
           ))}
