@@ -79,7 +79,7 @@ const App = () => {
                         <Route path="/mandatory/login" element={<Login users={users2} />}></Route>
                         {isAuthenticated &&
                             <Route path="/mandatory/users/:username" element={
-                                <MandatoryUserPage userAccessLevel={ users2.find(u => u.username === currentUser).accessLevel } files={files2} />} />
+                                <MandatoryUserPage userAccessLevel={ users2.find(u => u.username === currentUser)?.accessLevel } files={files2} />} />
                         }
                         <Route path='/*' element={<Navigate to="/" />}></Route>
                     </Routes>
